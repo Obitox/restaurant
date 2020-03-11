@@ -23,7 +23,7 @@ namespace RestaurantAPI.Controllers
         }
 
         // GET: /<controller>/
-        [HttpGet]
+        [HttpPost]
         public async Task<IActionResult> Data()
         {
             var items = await _repository.GetItems();
