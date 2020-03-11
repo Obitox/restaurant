@@ -36,6 +36,13 @@ namespace RestaurantAPI
 
             services.AddControllers().AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
+            services.AddCors(o => o.AddPolicy("DEV_POLICY", builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
+
             services.AddScoped<IItemRepository, ItemRepository>();
 
             services.AddDbContextPool<fastfood_dbContext>(options => options
@@ -54,6 +61,8 @@ namespace RestaurantAPI
             }
 
             app.UseHttpsRedirection();
+
+            app.UseCors("DEV_POLICY");
 
             app.UseRouting();
 
