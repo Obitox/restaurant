@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Restaurant.Infrastructure.Context;
 using Restaurant.Infrastructure.Models;
 using Restaurant.Infrastructure.Repository;
 
-// For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace RestaurantAPI.Controllers
 {
@@ -16,17 +16,20 @@ namespace RestaurantAPI.Controllers
     public class HomeController : Controller
     {
         private readonly IItemRepository _repository;
+        private readonly ILogger _logger;
 
-        public HomeController(IItemRepository repository)
+        public HomeController(IItemRepository repository, ILogger<HomeController> logger)
         {
-            _repository = repository; 
+            _repository = repository;
+            _logger = logger;
         }
 
-        // GET: /<controller>/
         [HttpPost]
-        public async Task<IActionResult> Data()
+        public async Task<IActionResult> Items()
         {
+            _logger.LogInformation("Entered Data");
             var items = await _repository.GetItems();
+            _logger.LogInformation("Exiting Data");
             return Ok(items);
         }
     }
