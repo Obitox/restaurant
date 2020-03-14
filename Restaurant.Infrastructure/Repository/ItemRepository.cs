@@ -17,9 +17,12 @@ namespace Restaurant.Infrastructure.Repository
 
         public async Task<IEnumerable<Item>> GetItems()
         {
-            return await _fastfood_dbContext.Item
-                .Include(item => item.Category)
-                .ToListAsync();
+                // TODO: Find better solution, at the moment it's not patched to return false in all cases, but if it doesn't connect to the server returns exception
+                if(_fastfood_dbContext.Database.CanConnect())
+                    return await _fastfood_dbContext.Item
+                        .Include(item => item.Category)
+                        .ToListAsync();
+                return new List<Item>();
         }
     }
 }
