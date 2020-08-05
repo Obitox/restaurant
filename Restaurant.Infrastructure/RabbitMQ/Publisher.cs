@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Restaurant.Infrastructure.RabbitMQ
 {
+    // TODO: Publish methods can be abstracted to a single method
     public class Publisher : IPublisher
     {
         private readonly ConnectionFactory _connectionFactory;
@@ -45,6 +46,39 @@ namespace Restaurant.Infrastructure.RabbitMQ
 
                 channel.BasicPublish(exchange: "",
                                           routingKey: "restaurantSendConfirmationEmail",
+                                          basicProperties: properties,
+                                          body: body);
+
+                return true;
+            }
+            catch (Exception exception)
+            {
+                // TODO: Logging
+                return false;
+            }
+        }
+
+        public bool PublishOrderEmail(string nameTo, string emailTo, ulong orderId, ulong cartId)
+        {
+            try
+            {
+                using IConnection conn = _connectionFactory.CreateConnection();
+                using IModel channel = conn.CreateModel();
+
+                channel.QueueDeclare(queue: "restaurantOrderEmail",
+                                          durable: false,
+                                          exclusive: false,
+                                          autoDelete: false,
+                                          arguments: null);
+
+                string msg = $"{nameTo};{emailTo};{orderId};{cartId}";
+                byte[] body = Encoding.UTF8.GetBytes(msg);
+
+                var properties = channel.CreateBasicProperties();
+                properties.Persistent = true;
+
+                channel.BasicPublish(exchange: "",
+                                          routingKey: "restaurantOrderEmail",
                                           basicProperties: properties,
                                           body: body);
 

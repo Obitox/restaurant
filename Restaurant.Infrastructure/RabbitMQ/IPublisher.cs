@@ -9,5 +9,6 @@ namespace Restaurant.Infrastructure.RabbitMQ
     public interface IPublisher
     {
         bool PublishConfirmationEmailMessage(string nameTo, string emailTo, string confirmLink);
+        bool PublishOrderEmail(string nameTo, string emailTo, ulong orderId, ulong cartId);
     }
 }

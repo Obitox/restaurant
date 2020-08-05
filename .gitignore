@@ -345,3 +345,4 @@ Restaurant.Scheduler/appsettings.json
 
 # Logs
 RestaurantAPI/Logs/
+Restaurant.Scheduler/Logs/
