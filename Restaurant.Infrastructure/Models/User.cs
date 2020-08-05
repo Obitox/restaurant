@@ -18,6 +18,8 @@ namespace Restaurant.Infrastructure.Models
         public string Email { get; set; }
         public string RequestAntiForgeryToken { get; set; }
         public byte IsDeleted { get; set; }
+        public byte IsEmailConfirmed { get; set; }
+        public string Salt { get; set; }
 
         public virtual Cart Cart { get; set; }
         public virtual Order Order { get; set; }

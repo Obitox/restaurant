@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Win32.SafeHandles;
-using Restaurant.Infrastructure.Context;
+using Restaurant.DAL.MySQL.Context;
+using Restaurant.Infrastructure.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Restaurant.Infrastructure.Repository
+namespace Restaurant.DAL.MySQL.Repository
 {
     public class Repository<T> : IRepository<T> where T : class
     {
@@ -25,9 +26,16 @@ namespace Restaurant.Infrastructure.Repository
             entities = fastfood.Set<T>();
         }
 
-        public void Add(T entity)
+        public async Task<bool> Add(T entity)
         {
-            throw new NotImplementedException();
+            if (entity == null)
+                return false;
+
+            await entities.AddAsync(entity);
+
+            int created = await _fastfood_dbContext.SaveChangesAsync();
+
+            return created > 0;
         }
 
         public void Add(params T[] entities)
@@ -69,12 +77,13 @@ namespace Restaurant.Infrastructure.Repository
         protected virtual void Dispose(bool disposing)
         {
             if (disposed)
-                return; 
-      
-            if (disposing) {
+                return;
+
+            if (disposing)
+            {
                 handle.Dispose();
             }
-      
+
             disposed = true;
         }
 
@@ -95,12 +104,7 @@ namespace Restaurant.Infrastructure.Repository
 
         public T Single(Expression<Func<T, bool>> predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, bool disableTracking = true)
         {
-            throw new NotImplementedException();
-        }
-
-        public void Update(T entity)
-        {
-            throw new NotImplementedException();
+            return entities.SingleOrDefault(predicate);
         }
 
         public void Update(params T[] entities)
@@ -111,6 +115,16 @@ namespace Restaurant.Infrastructure.Repository
         public void Update(IEnumerable<T> entities)
         {
             throw new NotImplementedException();
+        }
+
+        public void Update(T entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<T> SingleAsync(Expression<Func<T, bool>> predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, bool disableTracking = true)
+        {
+            return await entities.SingleOrDefaultAsync(predicate);
         }
     }
 }

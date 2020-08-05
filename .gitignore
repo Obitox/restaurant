@@ -341,6 +341,7 @@ healthchecksdb
 
 # Settings for app
 RestaurantAPI/appsettings.json
+Restaurant.Scheduler/appsettings.json
 
 # Logs
 RestaurantAPI/Logs/

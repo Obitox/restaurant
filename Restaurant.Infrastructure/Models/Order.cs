@@ -17,6 +17,8 @@ namespace Restaurant.Infrastructure.Models
         public TimeSpan? DeliveredAt { get; set; }
         public ulong UserId { get; set; }
         public ulong CartId { get; set; }
+        public decimal Price { get; set; }
+        public string PaymentOption { get; set; }
 
         public virtual Cart Cart { get; set; }
         public virtual User User { get; set; }

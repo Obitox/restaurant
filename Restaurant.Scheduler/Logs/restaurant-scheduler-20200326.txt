@@ -1,0 +1,5 @@
+2020-03-26T15:46:53.2323859+01:00  [INF] Application started. Press Ctrl+C to shut down. (dcaefe54)
+2020-03-26T15:46:53.2429129+01:00  [INF] Hosting environment: "Development" (c3307c92)
+2020-03-26T15:46:53.2447878+01:00  [INF] Content root path: "C:\Users\Cybertech\source\repos\restaurant\Restaurant.Scheduler" (b5d60022)
+2020-03-26T15:46:55.1535101+01:00  [INF] Bojan Miric;bojan.miric@outlook.com;https://localhost:44321/Account?userId=42&token=BAguqPORkg0iIYZqany7WdjPCV98wFa9NaPa4Y4Mtj3wT0qa7KcMow%3D%3D (7e539996)
+2020-03-26T15:49:52.9250803+01:00  [INF] Application is shutting down... (90f52c38)

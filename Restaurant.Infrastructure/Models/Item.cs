@@ -10,6 +10,7 @@ namespace Restaurant.Infrastructure.Models
             CartItem = new HashSet<CartItem>();
             Image = new HashSet<Image>();
             ItemIngredient = new HashSet<ItemIngredient>();
+            ItemMeal = new HashSet<ItemMeal>();
         }
 
         public ulong ItemId { get; set; }
@@ -26,5 +27,6 @@ namespace Restaurant.Infrastructure.Models
         public virtual ICollection<CartItem> CartItem { get; set; }
         public virtual ICollection<Image> Image { get; set; }
         public virtual ICollection<ItemIngredient> ItemIngredient { get; set; }
+        public virtual ICollection<ItemMeal> ItemMeal { get; set; }
     }
 }

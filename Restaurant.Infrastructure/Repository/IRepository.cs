@@ -17,8 +17,12 @@ namespace Restaurant.Infrastructure.Repository
             Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null,
             bool disableTracking = true);
+        Task<T> SingleAsync(Expression<Func<T, bool>> predicate = null,
+                    Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+                    Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null,
+                    bool disableTracking = true);
 
-        void Add(T entity);
+        Task<bool> Add(T entity);
         void Add(params T[] entities);
         void Add(IEnumerable<T> entities);
 

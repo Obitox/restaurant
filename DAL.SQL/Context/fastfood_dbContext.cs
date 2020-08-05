@@ -1,13 +1,16 @@
 ﻿using System;
-using System.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Restaurant.Infrastructure.Models;
 
-namespace Restaurant.Infrastructure.Context
+namespace Restaurant.DAL.MySQL.Context
 {
     public partial class fastfood_dbContext : DbContext
     {
+        public fastfood_dbContext()
+        {
+        }
+
         public fastfood_dbContext(DbContextOptions<fastfood_dbContext> options)
             : base(options)
         {
@@ -15,12 +18,15 @@ namespace Restaurant.Infrastructure.Context
 
         public virtual DbSet<Cart> Cart { get; set; }
         public virtual DbSet<CartItem> CartItem { get; set; }
+        public virtual DbSet<CartMeal> CartMeal { get; set; }
         public virtual DbSet<Category> Category { get; set; }
         public virtual DbSet<CategoryPortion> CategoryPortion { get; set; }
         public virtual DbSet<Image> Image { get; set; }
         public virtual DbSet<Ingredient> Ingredient { get; set; }
         public virtual DbSet<Item> Item { get; set; }
         public virtual DbSet<ItemIngredient> ItemIngredient { get; set; }
+        public virtual DbSet<ItemMeal> ItemMeal { get; set; }
+        public virtual DbSet<Meal> Meal { get; set; }
         public virtual DbSet<Order> Order { get; set; }
         public virtual DbSet<Portion> Portion { get; set; }
         public virtual DbSet<User> User { get; set; }
@@ -43,13 +49,9 @@ namespace Restaurant.Infrastructure.Context
                     .HasName("uq_cart_user_id")
                     .IsUnique();
 
-                entity.Property(e => e.CartId)
-                    .HasColumnName("cart_id")
-                    .HasColumnType("bigint(11) unsigned");
+                entity.Property(e => e.CartId).HasColumnName("cart_id");
 
-                entity.Property(e => e.UserId)
-                    .HasColumnName("user_id")
-                    .HasColumnType("bigint(11) unsigned");
+                entity.Property(e => e.UserId).HasColumnName("user_id");
 
                 entity.HasOne(d => d.User)
                     .WithOne(p => p.Cart)
@@ -68,21 +70,20 @@ namespace Restaurant.Infrastructure.Context
                 entity.HasIndex(e => e.ItemId)
                     .HasName("fk_cart_item_item_id");
 
-                entity.Property(e => e.CartItemId)
-                    .HasColumnName("cart_item_id")
-                    .HasColumnType("bigint(11) unsigned");
+                entity.Property(e => e.CartItemId).HasColumnName("cart_item_id");
 
-                entity.Property(e => e.Amount)
-                    .HasColumnName("amount")
-                    .HasColumnType("int(4) unsigned");
+                entity.Property(e => e.Amount).HasColumnName("amount");
 
-                entity.Property(e => e.CartId)
-                    .HasColumnName("cart_id")
-                    .HasColumnType("bigint(11) unsigned");
+                entity.Property(e => e.CartId).HasColumnName("cart_id");
 
-                entity.Property(e => e.ItemId)
-                    .HasColumnName("item_id")
-                    .HasColumnType("bigint(11) unsigned");
+                entity.Property(e => e.ItemId).HasColumnName("item_id");
+
+                entity.Property(e => e.PersonalPreference)
+                    .HasColumnName("personal_preference")
+                    .HasColumnType("varchar(255)")
+                    .HasDefaultValueSql("''")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_unicode_ci");
 
                 entity.HasOne(d => d.Cart)
                     .WithMany(p => p.CartItem)
@@ -97,13 +98,49 @@ namespace Restaurant.Infrastructure.Context
                     .HasConstraintName("fk_cart_item_item_id");
             });
 
+            modelBuilder.Entity<CartMeal>(entity =>
+            {
+                entity.ToTable("cart_meal");
+
+                entity.HasIndex(e => e.CartId)
+                    .HasName("cart_id_idx");
+
+                entity.HasIndex(e => e.MealId)
+                    .HasName("meal_id_idx");
+
+                entity.Property(e => e.CartMealId).HasColumnName("cart_meal_id");
+
+                entity.Property(e => e.Amount).HasColumnName("amount");
+
+                entity.Property(e => e.CartId).HasColumnName("cart_id");
+
+                entity.Property(e => e.MealId).HasColumnName("meal_id");
+
+                entity.Property(e => e.PersonalPreference)
+                    .HasColumnName("personal_preference")
+                    .HasColumnType("varchar(255)")
+                    .HasDefaultValueSql("''")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_unicode_ci");
+
+                entity.HasOne(d => d.Cart)
+                    .WithMany(p => p.CartMeal)
+                    .HasForeignKey(d => d.CartId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("fk_cart_meal_cart_id");
+
+                entity.HasOne(d => d.Meal)
+                    .WithMany(p => p.CartMeal)
+                    .HasForeignKey(d => d.MealId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("fk_cart_meal_meal_id");
+            });
+
             modelBuilder.Entity<Category>(entity =>
             {
                 entity.ToTable("category");
 
-                entity.Property(e => e.CategoryId)
-                    .HasColumnName("category_id")
-                    .HasColumnType("bigint(11) unsigned");
+                entity.Property(e => e.CategoryId).HasColumnName("category_id");
 
                 entity.Property(e => e.IsScalable).HasColumnName("is_scalable");
 
@@ -125,17 +162,11 @@ namespace Restaurant.Infrastructure.Context
                 entity.HasIndex(e => e.PortionId)
                     .HasName("fk_category_portion_portion_id_idx");
 
-                entity.Property(e => e.CategoryPortionId)
-                    .HasColumnName("category_portion_id")
-                    .HasColumnType("bigint(11) unsigned");
+                entity.Property(e => e.CategoryPortionId).HasColumnName("category_portion_id");
 
-                entity.Property(e => e.CategoryId)
-                    .HasColumnName("category_id")
-                    .HasColumnType("bigint(11) unsigned");
+                entity.Property(e => e.CategoryId).HasColumnName("category_id");
 
-                entity.Property(e => e.PortionId)
-                    .HasColumnName("portion_id")
-                    .HasColumnType("bigint(11) unsigned");
+                entity.Property(e => e.PortionId).HasColumnName("portion_id");
 
                 entity.HasOne(d => d.Category)
                     .WithMany(p => p.CategoryPortion)
@@ -157,17 +188,20 @@ namespace Restaurant.Infrastructure.Context
                 entity.HasIndex(e => e.ItemId)
                     .HasName("fk_image_item_id");
 
+                entity.HasIndex(e => e.MealId)
+                    .HasName("fk_image_meal_id_idx");
+
                 entity.HasIndex(e => e.Path)
                     .HasName("uq_image_path")
                     .IsUnique();
 
-                entity.Property(e => e.ImageId)
-                    .HasColumnName("image_id")
-                    .HasColumnType("bigint(10) unsigned");
+                entity.Property(e => e.ImageId).HasColumnName("image_id");
 
-                entity.Property(e => e.ItemId)
-                    .HasColumnName("item_id")
-                    .HasColumnType("bigint(11) unsigned");
+                entity.Property(e => e.ItemId).HasColumnName("item_id");
+
+                entity.Property(e => e.MealId)
+                    .HasColumnName("meal_id")
+                    .HasDefaultValueSql("'0'");
 
                 entity.Property(e => e.Path)
                     .IsRequired()
@@ -179,17 +213,19 @@ namespace Restaurant.Infrastructure.Context
                 entity.HasOne(d => d.Item)
                     .WithMany(p => p.Image)
                     .HasForeignKey(d => d.ItemId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("fk_image_item_id");
+
+                entity.HasOne(d => d.Meal)
+                    .WithMany(p => p.Image)
+                    .HasForeignKey(d => d.MealId)
+                    .HasConstraintName("fk_image_meal_id");
             });
 
             modelBuilder.Entity<Ingredient>(entity =>
             {
                 entity.ToTable("ingredient");
 
-                entity.Property(e => e.IngredientId)
-                    .HasColumnName("ingredient_id")
-                    .HasColumnType("bigint(11) unsigned");
+                entity.Property(e => e.IngredientId).HasColumnName("ingredient_id");
 
                 entity.Property(e => e.Allergens)
                     .IsRequired()
@@ -221,17 +257,11 @@ namespace Restaurant.Infrastructure.Context
                     .HasName("uq_item_title")
                     .IsUnique();
 
-                entity.Property(e => e.ItemId)
-                    .HasColumnName("item_id")
-                    .HasColumnType("bigint(11) unsigned");
+                entity.Property(e => e.ItemId).HasColumnName("item_id");
 
-                entity.Property(e => e.CalorieCount)
-                    .HasColumnName("calorie_count")
-                    .HasColumnType("int(4) unsigned");
+                entity.Property(e => e.CalorieCount).HasColumnName("calorie_count");
 
-                entity.Property(e => e.CategoryId)
-                    .HasColumnName("category_id")
-                    .HasColumnType("bigint(11) unsigned");
+                entity.Property(e => e.CategoryId).HasColumnName("category_id");
 
                 entity.Property(e => e.Description)
                     .IsRequired()
@@ -240,13 +270,9 @@ namespace Restaurant.Infrastructure.Context
                     .HasCharSet("utf8")
                     .HasCollation("utf8_unicode_ci");
 
-                entity.Property(e => e.IsDeleted)
-                    .HasColumnName("is_deleted")
-                    .HasColumnType("tinyint(1) unsigned");
+                entity.Property(e => e.IsDeleted).HasColumnName("is_deleted");
 
-                entity.Property(e => e.Mass)
-                    .HasColumnName("mass")
-                    .HasColumnType("int(4) unsigned");
+                entity.Property(e => e.Mass).HasColumnName("mass");
 
                 entity.Property(e => e.Price)
                     .HasColumnName("price")
@@ -282,17 +308,11 @@ namespace Restaurant.Infrastructure.Context
                 entity.HasIndex(e => e.ItemId)
                     .HasName("fk_item_ingredient_item_id");
 
-                entity.Property(e => e.ItemIngredientId)
-                    .HasColumnName("item_ingredient_id")
-                    .HasColumnType("bigint(11) unsigned");
+                entity.Property(e => e.ItemIngredientId).HasColumnName("item_ingredient_id");
 
-                entity.Property(e => e.IngredientId)
-                    .HasColumnName("ingredient_id")
-                    .HasColumnType("bigint(11) unsigned");
+                entity.Property(e => e.IngredientId).HasColumnName("ingredient_id");
 
-                entity.Property(e => e.ItemId)
-                    .HasColumnName("item_id")
-                    .HasColumnType("bigint(11) unsigned");
+                entity.Property(e => e.ItemId).HasColumnName("item_id");
 
                 entity.HasOne(d => d.Ingredient)
                     .WithMany(p => p.ItemIngredient)
@@ -307,6 +327,65 @@ namespace Restaurant.Infrastructure.Context
                     .HasConstraintName("fk_item_ingredient_item_id");
             });
 
+            modelBuilder.Entity<ItemMeal>(entity =>
+            {
+                entity.ToTable("item_meal");
+
+                entity.HasIndex(e => e.ItemId)
+                    .HasName("fk_item_meal_item_id_idx");
+
+                entity.HasIndex(e => e.ItemMealId)
+                    .HasName("item_meal_id_UNIQUE")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.MealId)
+                    .HasName("fk_item_meal_meal_id_idx");
+
+                entity.Property(e => e.ItemMealId).HasColumnName("item_meal_id");
+
+                entity.Property(e => e.ItemId).HasColumnName("item_id");
+
+                entity.Property(e => e.MealId).HasColumnName("meal_id");
+
+                entity.HasOne(d => d.Item)
+                    .WithMany(p => p.ItemMeal)
+                    .HasForeignKey(d => d.ItemId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("fk_item_meal_item_id");
+
+                entity.HasOne(d => d.Meal)
+                    .WithMany(p => p.ItemMeal)
+                    .HasForeignKey(d => d.MealId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("fk_item_meal_meal_id");
+            });
+
+            modelBuilder.Entity<Meal>(entity =>
+            {
+                entity.ToTable("meal");
+
+                entity.HasIndex(e => e.MealId)
+                    .HasName("meal_id_UNIQUE")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.Title)
+                    .HasName("title_UNIQUE")
+                    .IsUnique();
+
+                entity.Property(e => e.MealId).HasColumnName("meal_id");
+
+                entity.Property(e => e.Price)
+                    .HasColumnName("price")
+                    .HasColumnType("decimal(10,2) unsigned");
+
+                entity.Property(e => e.Title)
+                    .IsRequired()
+                    .HasColumnName("title")
+                    .HasColumnType("varchar(100)")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_unicode_ci");
+            });
+
             modelBuilder.Entity<Order>(entity =>
             {
                 entity.ToTable("order");
@@ -318,13 +397,9 @@ namespace Restaurant.Infrastructure.Context
                     .HasName("uq_order_user_id")
                     .IsUnique();
 
-                entity.Property(e => e.OrderId)
-                    .HasColumnName("order_id")
-                    .HasColumnType("bigint(11) unsigned");
+                entity.Property(e => e.OrderId).HasColumnName("order_id");
 
-                entity.Property(e => e.CartId)
-                    .HasColumnName("cart_id")
-                    .HasColumnType("bigint(11) unsigned");
+                entity.Property(e => e.CartId).HasColumnName("cart_id");
 
                 entity.Property(e => e.Comment)
                     .HasColumnName("comment")
@@ -353,13 +428,16 @@ namespace Restaurant.Infrastructure.Context
                     .HasCharSet("utf8")
                     .HasCollation("utf8_unicode_ci");
 
-                entity.Property(e => e.IsCanceled)
-                    .HasColumnName("is_canceled")
-                    .HasColumnType("tinyint(1) unsigned");
+                entity.Property(e => e.IsCanceled).HasColumnName("is_canceled");
 
-                entity.Property(e => e.IsDelivered)
-                    .HasColumnName("is_delivered")
-                    .HasColumnType("tinyint(1) unsigned");
+                entity.Property(e => e.IsDelivered).HasColumnName("is_delivered");
+
+                entity.Property(e => e.PaymentOption)
+                    .IsRequired()
+                    .HasColumnName("payment_option")
+                    .HasColumnType("enum('cash','card')")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_unicode_ci");
 
                 entity.Property(e => e.PersonalPreference)
                     .HasColumnName("personal_preference")
@@ -367,13 +445,13 @@ namespace Restaurant.Infrastructure.Context
                     .HasCharSet("utf8")
                     .HasCollation("utf8_unicode_ci");
 
-                entity.Property(e => e.Rating)
-                    .HasColumnName("rating")
-                    .HasColumnType("int(1) unsigned");
+                entity.Property(e => e.Price)
+                    .HasColumnName("price")
+                    .HasColumnType("decimal(10,2) unsigned");
 
-                entity.Property(e => e.UserId)
-                    .HasColumnName("user_id")
-                    .HasColumnType("bigint(11) unsigned");
+                entity.Property(e => e.Rating).HasColumnName("rating");
+
+                entity.Property(e => e.UserId).HasColumnName("user_id");
 
                 entity.HasOne(d => d.Cart)
                     .WithMany(p => p.Order)
@@ -392,9 +470,7 @@ namespace Restaurant.Infrastructure.Context
             {
                 entity.ToTable("portion");
 
-                entity.Property(e => e.PortionId)
-                    .HasColumnName("portion_id")
-                    .HasColumnType("bigint(11) unsigned");
+                entity.Property(e => e.PortionId).HasColumnName("portion_id");
 
                 entity.Property(e => e.MassCalorieMultiplier)
                     .HasColumnName("mass_calorie_multiplier")
@@ -404,9 +480,9 @@ namespace Restaurant.Infrastructure.Context
                     .HasColumnName("price_multiplier")
                     .HasColumnType("decimal(3,2) unsigned");
 
-                entity.Property(e => e.SizeName)
+                entity.Property(e => e.Title)
                     .IsRequired()
-                    .HasColumnName("size_name")
+                    .HasColumnName("title")
                     .HasColumnType("varchar(255)")
                     .HasCharSet("utf8")
                     .HasCollation("utf8_unicode_ci");
@@ -420,13 +496,15 @@ namespace Restaurant.Infrastructure.Context
                     .HasName("uq_user_email")
                     .IsUnique();
 
+                entity.HasIndex(e => e.Salt)
+                    .HasName("salt_UNIQUE")
+                    .IsUnique();
+
                 entity.HasIndex(e => e.Username)
                     .HasName("uq_user_username")
                     .IsUnique();
 
-                entity.Property(e => e.UserId)
-                    .HasColumnName("user_id")
-                    .HasColumnType("bigint(11) unsigned");
+                entity.Property(e => e.UserId).HasColumnName("user_id");
 
                 entity.Property(e => e.Address1)
                     .IsRequired()
@@ -461,9 +539,9 @@ namespace Restaurant.Infrastructure.Context
                     .HasCharSet("utf8")
                     .HasCollation("utf8_unicode_ci");
 
-                entity.Property(e => e.IsDeleted)
-                    .HasColumnName("is_deleted")
-                    .HasColumnType("tinyint(1) unsigned");
+                entity.Property(e => e.IsDeleted).HasColumnName("is_deleted");
+
+                entity.Property(e => e.IsEmailConfirmed).HasColumnName("is_email_confirmed");
 
                 entity.Property(e => e.LastName)
                     .IsRequired()
@@ -496,6 +574,14 @@ namespace Restaurant.Infrastructure.Context
                     .IsRequired()
                     .HasColumnName("role")
                     .HasColumnType("enum('administrator','dispatcher','customer')")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_unicode_ci");
+
+                entity.Property(e => e.Salt)
+                    .IsRequired()
+                    .HasColumnName("salt")
+                    .HasColumnType("varchar(255)")
+                    .HasDefaultValueSql("''")
                     .HasCharSet("utf8")
                     .HasCollation("utf8_unicode_ci");
 

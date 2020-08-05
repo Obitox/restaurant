@@ -8,6 +8,7 @@ namespace Restaurant.Infrastructure.Models
         public Cart()
         {
             CartItem = new HashSet<CartItem>();
+            CartMeal = new HashSet<CartMeal>();
             Order = new HashSet<Order>();
         }
 
@@ -16,6 +17,7 @@ namespace Restaurant.Infrastructure.Models
 
         public virtual User User { get; set; }
         public virtual ICollection<CartItem> CartItem { get; set; }
+        public virtual ICollection<CartMeal> CartMeal { get; set; }
         public virtual ICollection<Order> Order { get; set; }
     }
 }
