@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29806.167
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RestaurantAPI", "RestaurantAPI\RestaurantAPI.csproj", "{E6F72153-FFB1-40EB-8CF4-AC38A78F67B3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Restaurant.API", "Restaurant.API\Restaurant.API.csproj", "{E6F72153-FFB1-40EB-8CF4-AC38A78F67B3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Restaurant.Infrastructure", "Restaurant.Infrastructure\Restaurant.Infrastructure.csproj", "{FE83D32F-2F4F-4ECC-9C19-6B77EA576ACC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Restaurant.Domain", "Restaurant.Domain\Restaurant.Domain.csproj", "{FE83D32F-2F4F-4ECC-9C19-6B77EA576ACC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Restaurant.Scheduler", "Restaurant.Scheduler\Restaurant.Scheduler.csproj", "{793BC81D-D9CF-46FF-AE7F-1DF61667E544}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Restaurant.Infrastracture.Test", "Restaurant.Infrastracture.Test\Restaurant.Infrastracture.Test.csproj", "{AC574B06-727D-4ADD-80E9-02612E625D8E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Restaurant.Domain.Test", "Restaurant.Domain.Test\Restaurant.Domain.Test.csproj", "{AC574B06-727D-4ADD-80E9-02612E625D8E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Restaurant.DAL.MySQL", "DAL.SQL\Restaurant.DAL.MySQL.csproj", "{3417CF2F-ED08-4D68-8DF5-FDA44E06EBA3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Restaurant.DAL.MySQL", "DAL.SQL\Restaurant.DAL.MySQL.csproj", "{3417CF2F-ED08-4D68-8DF5-FDA44E06EBA3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

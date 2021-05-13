@@ -1,0 +1,64 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>OrderEmail</title>
+</head>
+<body>
+    <p>Payment option: @Model.PaymentOption</p>
+    <p>Created: @Model.CreatedAt</p>
+    <p>Estimated Delivery: @Model.DeliveryAt</p>
+
+    <br>
+    <table>
+        <tr>
+            <th>
+                Title
+            </th>
+            <th>
+                Portion
+            </th>
+            <th>
+                Amount
+            </th>
+            <th>
+                Price
+            </th>
+        </tr>
+        @foreach (var item in @Model.OrderItems)
+        {
+            <tr>
+                <td>@item.Title</td>
+                <td>@item.PortionTitle</td>
+                <td>@item.Amount</td>
+                <td>@item.Price din</td>
+            </tr>
+        }
+
+    </table>
+    <br>
+    <table>
+        <tr>
+            <th>
+                Title
+            </th>
+            <th>
+                Amount
+            </th>
+            <th>
+                Price
+            </th>
+        </tr>
+        @foreach (var meal in @Model.OrderMeals)
+        {
+            <tr>
+                <td>@meal.Title</td>
+                <td>@meal.Amount</td>
+                <td>@meal.Price din</td>
+            </tr>
+        }
+    </table>
+    <br>
+    <hr>
+    <p>Order total: @Model.Price din</p>
+</body>
+</html>

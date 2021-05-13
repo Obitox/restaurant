@@ -4,11 +4,9 @@ using MimeKit;
 using Quartz;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using RabbitMQ.Client.Exceptions;
-using Restaurant.Infrastructure.RabbitMQ;
+using Restaurant.Domain.RabbitMQ;
 using Restaurant.Scheduler.Helpers;
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,20 +16,20 @@ namespace Restaurant.Scheduler.Jobs
     class ConfirmationEmailJob : IJob
     {
         private readonly ILogger<ConfirmationEmailJob> _logger;
-        private readonly RabbitMQSettings _rabbitMQSettings;
+        private readonly RabbitMqSettings _rabbitMqSettings;
         private readonly EmailSettings _emailSettings;
         private readonly ConnectionFactory _connectionFactory;
 
-        public ConfirmationEmailJob(ILogger<ConfirmationEmailJob> logger, RabbitMQSettings rabbitMQSettings, EmailSettings emailSettings, ConnectionFactory connectionFactory)
+        public ConfirmationEmailJob(ILogger<ConfirmationEmailJob> logger, RabbitMqSettings rabbitMqSettings, EmailSettings emailSettings, ConnectionFactory connectionFactory)
         {
             _logger = logger;
-            _rabbitMQSettings = rabbitMQSettings;
+            _rabbitMqSettings = rabbitMqSettings;
             _emailSettings = emailSettings;
             _connectionFactory = connectionFactory;
-            _connectionFactory.UserName = _rabbitMQSettings.User;
-            _connectionFactory.Password = _rabbitMQSettings.Pass;
+            _connectionFactory.UserName = _rabbitMqSettings.User;
+            _connectionFactory.Password = _rabbitMqSettings.Pass;
             _connectionFactory.VirtualHost = "/";
-            _connectionFactory.HostName = _rabbitMQSettings.HostName;
+            _connectionFactory.HostName = _rabbitMqSettings.HostName;
         }
 
         public Task Execute(IJobExecutionContext context)

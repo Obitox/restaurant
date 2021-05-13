@@ -1,12 +1,11 @@
 ﻿using Restaurant.DAL.MySQL.Context;
-using Restaurant.Infrastructure.Models;
-using Restaurant.Infrastructure.Repository;
+using Restaurant.DAL.MySQL.Models;
 
 namespace Restaurant.DAL.MySQL.Repository
 {
-    public class CartMealRepository : Repository<CartMeal>, ICartMealRepository
+    public class CartMealRepository : Repository<CartMeal>
     {
-        public CartMealRepository(fastfood_dbContext fastfood) : base(fastfood)
+        public CartMealRepository(RestaurantDbContext restaurant) : base(restaurant)
         {
         }
     }

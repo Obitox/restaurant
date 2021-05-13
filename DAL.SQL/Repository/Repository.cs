@@ -1,29 +1,23 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.Win32.SafeHandles;
 using Restaurant.DAL.MySQL.Context;
-using Restaurant.Infrastructure.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Restaurant.DAL.MySQL.Repository
 {
     public class Repository<T> : IRepository<T> where T : class
     {
-        protected readonly fastfood_dbContext _fastfood_dbContext;
-        private readonly DbSet<T> entities;
-        bool disposed = false;
-        readonly SafeHandle handle = new SafeFileHandle(IntPtr.Zero, true);
+        protected readonly RestaurantDbContext RestaurantDbContext;
+        private readonly DbSet<T> _entities;
 
-        public Repository(fastfood_dbContext fastfood)
+        public Repository(RestaurantDbContext restaurant)
         {
-            _fastfood_dbContext = fastfood;
-            entities = fastfood.Set<T>();
+            RestaurantDbContext = restaurant;
+            _entities = restaurant.Set<T>();
         }
 
         public async Task<bool> Add(T entity)
@@ -31,9 +25,9 @@ namespace Restaurant.DAL.MySQL.Repository
             if (entity == null)
                 return false;
 
-            await entities.AddAsync(entity);
+            await _entities.AddAsync(entity);
 
-            int created = await _fastfood_dbContext.SaveChangesAsync();
+            var created = await RestaurantDbContext.SaveChangesAsync();
 
             return created > 0;
         }
@@ -68,28 +62,24 @@ namespace Restaurant.DAL.MySQL.Repository
             throw new NotImplementedException();
         }
 
-        public void Dispose()
+        public virtual async Task<List<T>> GetAll(Expression<Func<T, bool>> predicate = null, params Expression<Func<T, object>>[] includes)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+            if(predicate == null && includes == null)
+                return await _entities.ToListAsync();
+            
+            var query = _entities.AsQueryable();
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposed)
-                return;
+            if (includes != null)
+                foreach (var include in includes)
+                {
+                    if (include.Body is MemberExpression memberExpression)
+                        query = query.Include(memberExpression.Member.Name);
+                }
 
-            if (disposing)
-            {
-                handle.Dispose();
-            }
+            if(predicate != null)
+                query = query.Where(predicate);
 
-            disposed = true;
-        }
-
-        public virtual async Task<List<T>> GetAll(params Expression<Func<T, object>>[] includes)
-        {
-            return await entities.ToListAsync();
+            return await query.ToListAsync();
         }
 
         public IQueryable<T> Query(string sql, params object[] parameters)
@@ -104,7 +94,7 @@ namespace Restaurant.DAL.MySQL.Repository
 
         public T Single(Expression<Func<T, bool>> predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, bool disableTracking = true)
         {
-            return entities.SingleOrDefault(predicate);
+            return _entities.SingleOrDefault(predicate);
         }
 
         public void Update(params T[] entities)
@@ -117,14 +107,16 @@ namespace Restaurant.DAL.MySQL.Repository
             throw new NotImplementedException();
         }
 
-        public void Update(T entity)
+        public async Task<bool> Update(T entity, Expression<Func<T, bool>> predicate)
         {
-            throw new NotImplementedException();
+            var entityFound = await _entities.FirstOrDefaultAsync(predicate);
+            _entities.Update(entityFound);
+            return await (RestaurantDbContext.SaveChangesAsync()) > 0;
         }
 
         public async Task<T> SingleAsync(Expression<Func<T, bool>> predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, bool disableTracking = true)
         {
-            return await entities.SingleOrDefaultAsync(predicate);
+            return await _entities.SingleOrDefaultAsync(predicate);
         }
     }
 }

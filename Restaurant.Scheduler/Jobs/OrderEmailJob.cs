@@ -1,16 +1,17 @@
 ﻿using MailKit.Net.Smtp;
 using Microsoft.Extensions.Logging;
 using MimeKit;
+using Newtonsoft.Json;
 using Quartz;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using Restaurant.Infrastructure.Models;
-using Restaurant.Infrastructure.RabbitMQ;
+using RazorEngine;
+using RazorEngine.Templating;
+using Restaurant.Domain.RabbitMQ;
+using Restaurant.Domain.Templates;
 using Restaurant.Scheduler.Helpers;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Restaurant.Scheduler.Jobs
@@ -19,20 +20,20 @@ namespace Restaurant.Scheduler.Jobs
     class OrderEmailJob : IJob
     {
         private readonly ILogger<ConfirmationEmailJob> _logger;
-        private readonly RabbitMQSettings _rabbitMQSettings;
+        private readonly RabbitMqSettings _rabbitMqSettings;
         private readonly EmailSettings _emailSettings;
         private readonly ConnectionFactory _connectionFactory;
 
-        public OrderEmailJob(ILogger<ConfirmationEmailJob> logger, RabbitMQSettings rabbitMQSettings, EmailSettings emailSettings, ConnectionFactory connectionFactory)
+        public OrderEmailJob(ILogger<ConfirmationEmailJob> logger, RabbitMqSettings rabbitMqSettings, EmailSettings emailSettings, ConnectionFactory connectionFactory)
         {
             _logger = logger;
-            _rabbitMQSettings = rabbitMQSettings;
+            _rabbitMqSettings = rabbitMqSettings;
             _emailSettings = emailSettings;
             _connectionFactory = connectionFactory;
-            _connectionFactory.UserName = _rabbitMQSettings.User;
-            _connectionFactory.Password = _rabbitMQSettings.Pass;
+            _connectionFactory.UserName = _rabbitMqSettings.User;
+            _connectionFactory.Password = _rabbitMqSettings.Pass;
             _connectionFactory.VirtualHost = "/";
-            _connectionFactory.HostName = _rabbitMQSettings.HostName;
+            _connectionFactory.HostName = _rabbitMqSettings.HostName;
         }
 
         public Task Execute(IJobExecutionContext context)
@@ -55,27 +56,28 @@ namespace Restaurant.Scheduler.Jobs
                 consumer.Received += (model, ea) =>
                 {
                     byte[] body = ea.Body;
-                    string message = Encoding.UTF8.GetString(body);
+                    string message = System.Text.Encoding.UTF8.GetString(body);
+                    _logger.LogInformation("ENTERED");
                     _logger.LogInformation(message);
                     if (message.Length > 0)
                         messageSplitted = message.Split(";");
 
-                    //$"{nameTo};{emailTo};{orderId};{cartId}";
                     if (messageSplitted.Length > 0)
                     {
-                        string nameTo = messageSplitted[0];
-                        string emailTo = messageSplitted[1];
-                        ulong.TryParse(messageSplitted[2], out ulong orderId);
-                        ulong.TryParse(messageSplitted[3], out ulong cartId);
-                        // TODO: Change from my email
-                        SendEmail(nameTo, emailTo, confirmLink);
+                        ulong.TryParse(messageSplitted[0], out ulong userId);
+                        string nameTo = messageSplitted[1];
+                        string emailTo = messageSplitted[2];
+                        string order = messageSplitted[3];
+                        var orderView = JsonConvert.DeserializeObject<OrderView>(order);
+
+                        SendEmail(nameTo, emailTo, orderView);
                     }
 
                     channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
                 };
 
 
-                channel.BasicConsume(queue: "restaurantSendConfirmationEmail",
+                channel.BasicConsume(queue: "restaurantOrderEmail",
                                         autoAck: false,
                                         consumer: consumer);
 
@@ -88,19 +90,22 @@ namespace Restaurant.Scheduler.Jobs
             }
         }
 
-        private void SendEmail(string nameTo, string emailTo, Order order)
+        private void SendEmail(string nameTo, string emailTo, OrderView order)
         {
             MimeMessage message = new MimeMessage();
-            MailboxAddress from = new MailboxAddress("Bojan Miric", _emailSettings.Username);
+            MailboxAddress from = new MailboxAddress(nameTo, _emailSettings.Username);
             message.From.Add(from);
             MailboxAddress to = new MailboxAddress(nameTo, emailTo);
             message.To.Add(to);
-            message.Subject = "Test";
+            message.Subject = $"Order for {nameTo}";
+
+            var templateFilePath = "C:/Users/Cybertech/source/repos/restaurant/Restaurant.Scheduler/Views/OrderEmail.cshtml";
+            string html = Engine.Razor.RunCompile(File.ReadAllText(templateFilePath), "sfsfsdasdasd", typeof(OrderView), order);
 
             BodyBuilder bodyBuilder = new BodyBuilder
             {
-                HtmlBody = $"<a href={$"{confirmLink}"}><u>Click here to confirm your email</u></a>",
-                TextBody = "Test"
+                HtmlBody = html,
+                TextBody = $"Order for {nameTo}"
             };
 
             message.Body = bodyBuilder.ToMessageBody();
