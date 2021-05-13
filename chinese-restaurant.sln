@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Restaurant.Scheduler", "Res
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Restaurant.Domain.Test", "Restaurant.Domain.Test\Restaurant.Domain.Test.csproj", "{AC574B06-727D-4ADD-80E9-02612E625D8E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Restaurant.DAL.MySQL", "DAL.SQL\Restaurant.DAL.MySQL.csproj", "{3417CF2F-ED08-4D68-8DF5-FDA44E06EBA3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Restaurant.DAL.MySQL", "Restaurant.DAL.MySQL\Restaurant.DAL.MySQL.csproj", "{3417CF2F-ED08-4D68-8DF5-FDA44E06EBA3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
