@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace Restaurant.Infrastructure.Models
+namespace Restaurant.DAL.MySQL.Models
 {
     public partial class Cart
     {
