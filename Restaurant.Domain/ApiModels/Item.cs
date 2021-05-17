@@ -11,17 +11,20 @@ namespace Restaurant.Domain.ApiModels
 
         public ulong CategoryId { get; set; }
         public ICollection<Portion> Portions { get; set; }
+        public Image Image { get; set; }
 
-        public Item(ulong id, string title, ulong categoryId, ICollection<Portion> portions)
+        public Item(ulong id, string title, ulong categoryId, ICollection<Portion> portions, Image image)
         {
             Id = id;
             Title = title;
             Portions = portions;
             CategoryId = categoryId;
+            Image = image;
         }
 
         public Item()
         {
-        }    
+            
+        }
     }
 }

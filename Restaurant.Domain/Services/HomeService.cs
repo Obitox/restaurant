@@ -35,13 +35,14 @@ namespace Restaurant.Domain.Services
             var ingredients = (await _ingredientRepository.GetAll(null, ingredient => ingredient.ItemIngredient))
                 .Select(ingredient => _mapper.Map<Ingredient>(ingredient));
 
-            var items = await _itemRepository.GetAll();
+            var items = await _itemRepository.GetAll(null, item => item.Image);
             var categoryPortions = await _categoryPortionRepository.GetAll(null, categoryPortion => categoryPortion.Portion);
 
             var listOfApiItems = new List<Item>();
             foreach (var item in items)
             {
-                var apiItem = new Item(item.ItemId, item.Title, item.CategoryId, new List<Portion>());
+                // TODO: Fix many relationship for item - image
+                var apiItem = new Item(item.ItemId, item.Title, item.CategoryId, new List<Portion>(), _mapper.Map<Image>(item.Image.FirstOrDefault()));
                 foreach (var categoryPortion in categoryPortions.Where(categoryPortion => item.CategoryId == categoryPortion.CategoryId))
                 {
                     apiItem.Portions.Add(new Portion()
