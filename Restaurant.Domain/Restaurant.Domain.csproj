@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DAL.SQL\Restaurant.DAL.MySQL.csproj" />
+    <ProjectReference Include="..\Restaurant.DAL.MySQL\Restaurant.DAL.MySQL.csproj" />
   </ItemGroup>
 
 </Project>
