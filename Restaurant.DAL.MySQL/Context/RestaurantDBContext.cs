@@ -187,16 +187,6 @@ namespace Restaurant.DAL.MySQL.Context
             {
                 entity.ToTable("image");
 
-                entity.HasIndex(e => e.ItemId)
-                    .HasName("fk_image_item_id");
-
-                entity.HasIndex(e => e.MealId)
-                    .HasName("fk_image_meal_id_idx");
-
-                entity.HasIndex(e => e.Path)
-                    .HasName("uq_image_path")
-                    .IsUnique();
-
                 entity.Property(e => e.ImageId).HasColumnName("image_id");
 
                 entity.Property(e => e.ItemId).HasColumnName("item_id");
